@@ -6,6 +6,7 @@ import time
 import cv, cv2
 import cPickle as pickle
 import gc
+import thread
 
 '''
 USAGE:

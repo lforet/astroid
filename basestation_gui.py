@@ -68,7 +68,7 @@ class display_video(Thread):
 
 if __name__== "__main__":
 
-	wifi = consume_wifi('wifi.1', '192.168.1.190')
+	wifi = consume_wifi('wifi.1', ROBOT_IP)
 	graph_wifi  = wifi_graph(wifi)
 
 	reply =""

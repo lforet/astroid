@@ -41,7 +41,7 @@ class publish_video():
 		self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 		self.channel = self.connection.channel()
 		#channel.queue_declare(queue='mobot_video1', auto_delete=True, arguments={'x-message-ttl':1000})
-		self.channel.exchange_declare(exchange='mobot_data_feed',type='topic')
+		self.channel.exchange_declare(exchange='astroid_data_feed',type='topic')
 
 		#print self.feed_num
 	'''

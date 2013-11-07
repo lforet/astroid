@@ -15,7 +15,7 @@ from wifi_consume import *
 import time
 import matplotlib.pyplot as plt
 from matplotlib import mpl
-import wifi_graph
+from wifi_graph import *
 
 ROBOT_IP = '192.168.1.190'
 Camera1 = None
