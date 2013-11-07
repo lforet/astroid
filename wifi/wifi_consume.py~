@@ -69,7 +69,7 @@ class consume_wifi():
 
 if __name__== "__main__":
 
-	wifi = consume_wifi('wifi.1', '192.168.1.180')
+	wifi = consume_wifi('wifi.1', '192.168.1.190')
 	while True:
 		time.sleep(1)
 		print 'signal strength:', wifi.signal_strength

@@ -49,7 +49,7 @@ class consume_wifi():
 					self.connect()
 			time.sleep(0.5) # do not hog the processor power
 			#print "-" * 50
-			method_frame, properties, body = self.channel.basic_get(self.queue_name)
+			method_frame, properties, body = self.channel.basic_get(queue=self.queue_name)
 			if method_frame:
 				# Display the message parts
 				#print method_frame
