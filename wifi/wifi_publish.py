@@ -1,4 +1,16 @@
 #!/usr/bin/python
+"""
+
+SUMMARY:
+	This library gets wifi signal strength to a given SSID and publishes to rabbitmq channel. 
+	
+	Call with the name of wifi SSID.
+	
+	publishes signal strength in form of a string 0-3 characters.	
+
+EXAMPLE USAGE:
+	wlist = WiFi_Scanner('isotope11_wireless')
+"""
 
 import dbus
 import time
@@ -56,20 +68,27 @@ class WiFi_Scanner():
 				except:
 					pass
 	
-	def signal_strength(self, ssid):
+	def signal_strength(self):
 			to_return = -1
 			self.update()
 			#filter(lambda x: 'abc' in x,lst)
 			for i in self.aps:
-				if i[0] == ssid: 
+				if i[0] == self.ssid: 
 					to_return = i[1]
 			self.publish(str(to_return))
 			self.strength = to_return
+			print to_return
 			#return to_return
+	
+	def loop(self):
+		while True:
+			self.signal_strength()
+			time.sleep(.1)
 	
 	def run(self):
 		self.connect()
-		self.th = thread.start_new_thread(self.signal_strength, (self.ssid))
+		print self.ssid
+		self.th = thread.start_new_thread(self.loop, ())
 
 	def connect(self):
 		self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -79,7 +98,7 @@ class WiFi_Scanner():
 		#self.channel.queue_bind(queue='mobot_wifi', exchange='mobot_data_feed', auto_delete=True, arguments={'x-message-ttl':1000})
 	
 	def publish(self, data):
-			self.channel.basic_publish(exchange='astroid_data_feed', routing_key=self.channel_name,  body=data, properties=pika.BasicProperties(expiration=str(100)))
+			self.channel.basic_publish(exchange='astroid_data_feed', routing_key=self.channel_name,  body=data, properties=pika.BasicProperties(expiration=str(1000)))
 
 
 if __name__ == "__main__":
