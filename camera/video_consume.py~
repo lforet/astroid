@@ -43,7 +43,7 @@ class consume_video():
 				self.connect()
 			time.sleep(0.0001) # do not hog the processor power
 			try:
-		                method_frame, properties, body = self.channel.basic_get(queue=self.queue_name)
+				method_frame, properties, body = self.channel.basic_get(queue=self.queue_name)
 				self.frame = pickle.loads(body)	
 				# Acknowledge the message
 				self.channel.basic_ack(method_frame.delivery_tag)

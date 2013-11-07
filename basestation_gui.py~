@@ -45,15 +45,16 @@ def snap_shot(img, filename):
 
 
 class display_video(Thread):
-	def __init__(self):
+	def __init__(self, Robot_IP):
 		self.frame = None
+		self.IP = Robot_IP
 		Thread.__init__(self)
 
 	def run(self):
 		#print "hi"
 		#time.sleep(5)
 		cv2.namedWindow('Camera1', cv.CV_WINDOW_AUTOSIZE)
-		camera = consume_video('video.0', ROBOT_IP)
+		camera = consume_video('video.0', self.IP)
 		while True:
 			#time.sleep(0.1)
 			try:
@@ -70,6 +71,7 @@ if __name__== "__main__":
 
 	wifi = consume_wifi('wifi.1', ROBOT_IP)
 	#graph_wifi  = wifi_graph(wifi)
+	#Camera1 = display_video()
 
 	reply =""
 	eg.rootWindowPosition = "+60+375"
@@ -79,7 +81,6 @@ if __name__== "__main__":
 			snap_shot(Camera1.frame, 'temp.png')	
 
 		if reply == "Enable Video":
-			
 			if Camera1 == None:
 				Camera1 = display_video()
 				Camera1.daemon= True
