@@ -129,7 +129,7 @@ class wifi_graph():
 			self.fig.canvas.draw()
 	
 	def graph(self):
-		self.fig, self.ax = plt.subplots('all',dpi=60)
+		self.fig, self.ax = plt.subplots(dpi=60)
 		self.win = self.fig.canvas.manager.window
 		self.win.after(10, self.animate)
 		plt.show ()
