@@ -6,7 +6,7 @@ sys.path.append( "lidar/" )
 sys.path.append( "camera/" )
 sys.path.append( "wifi/" )
 
-import cv2
+import cv, cv2
 from threading import *
 import easygui as eg
 from video_consume import *
@@ -70,6 +70,7 @@ if __name__== "__main__":
 
 	wifi = consume_wifi('wifi.1', ROBOT_IP)
 	#graph_wifi  = wifi_graph(wifi)
+	Camera1 = display_video()
 
 	reply =""
 	eg.rootWindowPosition = "+60+375"

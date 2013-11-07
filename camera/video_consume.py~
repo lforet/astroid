@@ -4,7 +4,7 @@ import pika
 import thread, time, sys, traceback
 import cPickle as pickle	
 import cv, cv2
-
+import time
 
 ''' USAGE:
 
@@ -39,13 +39,16 @@ class consume_video():
 		
 	def grab_frames(self):	
 		while True:
+			if  self.connection == None or self.connection.is_open == False:
+				self.connect()
 			time.sleep(0.0001) # do not hog the processor power
-			self.connect()
-			for method_frame, properties, body in self.channel.consume(self.queue_name):
+			try:
+		                method_frame, properties, body = self.channel.basic_get(queue=self.queue_name)
 				self.frame = pickle.loads(body)	
 				# Acknowledge the message
 				self.channel.basic_ack(method_frame.delivery_tag)
-			
+			except:
+				pass
 						
 	def run(self):
 		self.th = thread.start_new_thread(self.grab_frames, ())
@@ -53,7 +56,9 @@ class consume_video():
 
 if __name__== "__main__":
 	cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
-	camera = consume_video('video.0', 'localhost')
+	camera = consume_video('video.0', '192.168.1.190')
+	print camera.frame
+	#sys.exit()
 	while True:
 		#time.sleep(0.1)
 		try:
@@ -62,6 +67,7 @@ if __name__== "__main__":
 			cv.WaitKey(10)
 		except:
 			print "no video feed"
+			time.sleep(.5)
 			pass
 
 
