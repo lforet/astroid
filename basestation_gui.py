@@ -3,7 +3,7 @@
 import sys
 sys.path.append( "libs/" )
 sys.path.append( "lidar/" )
-sys.path.append( "camera/" )
+sys.path.append( "video/" )
 sys.path.append( "wifi/" )
 
 import cv, cv2
@@ -66,6 +66,7 @@ class display_video(Thread):
 				pass
 
 if __name__== "__main__":
+	eg.rootWindowPosition = "+60+375"
 
 	wifi = consume_wifi('wifi.1', ROBOT_IP)
 	
@@ -73,9 +74,11 @@ if __name__== "__main__":
 	
 	wifi = consume_wifi('wifi.1', '192.168.1.190')
 	graph_wifi  = wifi_graph(wifi)
+	
+	#time.sleep(2) # given windows time to open and release handle
 			
 	reply =""
-	eg.rootWindowPosition = "+60+375"
+	
 	
 	while True:
 
