@@ -92,7 +92,7 @@ class wifi_graph():
 			y = y[1:]
 		
 			signal_value = self.wifi_to_graph.signal_strength
-			print signal_value 
+			#print signal_value 
 
 			try:
 				val = int(self.wifi_to_graph.signal_strength)		
@@ -123,13 +123,13 @@ class wifi_graph():
 			for i in range(len(x)):
 				#colors.append(calculate_color(y[i]))
 				colors.append(self.calculate_color2(y[i]))
-			print val , colors[99]
+			#print val , colors[99]
 			 
 			plt.bar(x , y, 1, color=colors)
 			self.fig.canvas.draw()
 	
 	def graph(self):
-		self.fig, self.ax = plt.subplots(1,1,1,dpi=60)
+		self.fig, self.ax = plt.subplots('all',dpi=60)
 		self.win = self.fig.canvas.manager.window
 		self.win.after(10, self.animate)
 		plt.show ()

@@ -34,7 +34,7 @@ class consume_video():
 		result = self.channel.queue_declare(exclusive=True)
 		self.queue_name = result.method.queue
 		binding_keys = self.channel_name
-		self.channel.queue_bind(exchange='mobot_data_feed', queue=self.queue_name, routing_key=self.channel_name)
+		self.channel.queue_bind(exchange='astroid_data_feed', queue=self.queue_name, routing_key=self.channel_name)
 
 		
 	def grab_frames(self):	
