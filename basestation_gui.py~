@@ -16,6 +16,7 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib import mpl
 from wifi_graph import *
+from img_processing_tools import *
 
 ROBOT_IP = '192.168.1.190'
 Camera1 = None
@@ -41,48 +42,47 @@ def snap_shot(img, filename):
 	return 
 
 
-
-
-
 class display_video(Thread):
 	def __init__(self, Robot_IP):
 		self.frame = None
+		self.camera = None
 		self.IP = Robot_IP
 		Thread.__init__(self)
 
 	def run(self):
-		#print "hi"
-		#time.sleep(5)
-		cv2.namedWindow('Camera1', cv.CV_WINDOW_AUTOSIZE)
-		camera = consume_video('video.0', self.IP)
+		#cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
+		#cv.NamedWindow("Video")
+		self.camera = consume_video('video.0', self.IP)
+		#sys.exit()
 		while True:
 			#time.sleep(0.1)
 			try:
-				#print "receiving video feed data: ", len(camera.frame)
-				self.frame = camera.frame 
-				cv2.imshow('Camera1', camera.frame)
+				#print "receiving video feed data: ", len(self.camera.frame)
+				cv2.imshow('Video', self.camera.frame)
 				cv.WaitKey(10)
 			except:
 				print "no video feed"
-				time.sleep(0.5)
+				time.sleep(.5)
 				pass
 
 if __name__== "__main__":
 
 	wifi = consume_wifi('wifi.1', ROBOT_IP)
-	#graph_wifi  = wifi_graph(wifi)
-	#Camera1 = display_video()
-
+	
+	cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
+			
 	reply =""
 	eg.rootWindowPosition = "+60+375"
+	
 	while True:
 
 		if reply == "SnapShot":
-			snap_shot(Camera1.frame, 'temp.png')	
+			snap_shot(Camera1.camera.frame, 'temp.png')	
 
 		if reply == "Enable Video":
 			if Camera1 == None:
-				Camera1 = display_video()
+				Camera1 = display_video(ROBOT_IP)
+				print Camera1
 				Camera1.daemon= True
 				Camera1.start()
 			else:
