@@ -53,7 +53,7 @@ class display_video(Thread):
 		#cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
 		#cv.NamedWindow("Video")
 		self.camera = consume_video('video.0', self.IP)
-		#sys.exit()
+		time.sleep(1)
 		while True:
 			#time.sleep(0.1)
 			try:

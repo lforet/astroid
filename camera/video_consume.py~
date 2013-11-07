@@ -8,11 +8,8 @@ import time
 
 ''' USAGE:
 
-	lidar = consume_lidar('video.1', 'localhost')
-	while True:
-		time.sleep(1)
-		print lidar.data[1]
-		print 'rpm speed:', lidar.speed_rpm
+	video = consume_lidar('video.1', 'localhost')
+	print video.frame
 '''
 
 class consume_video():
