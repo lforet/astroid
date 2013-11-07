@@ -22,8 +22,10 @@ Camera1 = None
 
 if __name__== "__main__":
 
-	
 	publish_video(0, 320, 240)
+	wifi = WiFi_Scanner('isotope11_wireless')
+
+	
 
 	while True:
 		time.sleep(1)

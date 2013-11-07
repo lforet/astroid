@@ -22,10 +22,11 @@ Camera1 = None
 
 if __name__== "__main__":
 
+	#publish video from camera on /dev/ttyUSB0
 	publish_video(0, 320, 240)
-	wifi = WiFi_Scanner()
+	#pulish wifi signal strength
+	wifi = WiFi_Scanner('isotope11_wireless')
 
-	
 
 	while True:
 		time.sleep(1)
