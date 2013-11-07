@@ -70,6 +70,8 @@ if __name__== "__main__":
 	wifi = consume_wifi('wifi.1', ROBOT_IP)
 	
 	cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
+	wifi = consume_wifi('wifi.1', '192.168.1.190')
+	graph_wifi  = wifi_graph(wifi)
 			
 	reply =""
 	eg.rootWindowPosition = "+60+375"
