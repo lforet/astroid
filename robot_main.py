@@ -14,6 +14,9 @@ from identify_device_on_ttyport import *
 #from video_consume import *
 from video_publish import *
 from wifi_publish import *
+from wifi_consume import *
+
+
 import time
 
 ROBOT_IP = 'localhost'
