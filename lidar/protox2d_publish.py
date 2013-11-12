@@ -17,10 +17,11 @@ EXAMPLE USAGE:
 """
 
 import serial
-import threading
+import thread
 import time
 #import os
 from serial.tools import list_ports
+import json
 
 import sys
 sys.path.append( "../libs/" )
@@ -37,6 +38,7 @@ class protox2d():
 		self.distance_mm = 0
 		self.quality = 0
 		self.rpm = 0
+		self.distance_array = [0] * 360
 		# serial port
 		self.com_port = None
 		self.baudrate = 115200
@@ -66,7 +68,7 @@ class protox2d():
 							temp_data = ser.readline()
 							temp_data = temp_data.strip('\r\n')
 							data = temp_data.split(',')
-							print data
+							#print data
 							if data[0] == self.id :
 								#ser.write("a\n")      # write a string
 								print "protox2d with id:", self.id, " connected to on serial port: ", port_to_try
@@ -95,14 +97,34 @@ class protox2d():
 	
 	def run(self):
 		self.connect_to_lidar()
-		
-		#if self.ser != None:
-		#	self.connect()
-		self.th = thread.start_new_thread(self.loop(), ())
-		
+		self.th = thread.start_new_thread(self.loop, ())
+
+	def loop(self):
+			quotes = '"'
+			while True:
+				self.read_lidar()
+				time.sleep(0.0001) # dont hog processor
+				json_to_publish = ('{\n\r' + '   ' + quotes + 'id' + quotes + ': ' +
+				quotes + str(self.id) + quotes + ',\n\r' + '   ' + 
+				quotes + 'rpm' + quotes + ': ' +
+				str(self.rpm) + ',\n\r' + '   ' +
+				quotes + 'points' + quotes + ': ' +
+				str(self.distance_array) + '\n\r' + '}\n\r')
+				print json_to_publish, type(json_to_publish)
+				#self.publish(self.read_lidar())
+				#self.publish(json_to_publish)
+
+	def reset_variables(self):
+		self.id = 0
+		self.x_angle = 0
+		self.y_angle = 0
+		self.distance_mm = 0
+		self.quality = 0
+		self.distance_array = [0] * 360 
+
 
 	def read_lidar(self):
-			temp_array = [0] * 360
+			self.reset_variables()
 			num_of_readings = (360 * NUMBER_READINGS)
 			for reading in range(num_of_readings):							
 				temp_data = self.ser.readline()
@@ -116,7 +138,7 @@ class protox2d():
 					self.quality = int(lidar_data[4])
 					self.rpm = int(lidar_data[5])
 					if self.quality > 0:
-						temp_array[self.y_angle] = self.distance_mm 
+						self.distance_array[self.y_angle] = self.distance_mm 
 				except:
 					pass
 			#zero_distance = 0
@@ -124,21 +146,14 @@ class protox2d():
 			#	if temp_array[i] == 0: zero_distance = zero_distance + 1
 				#print "angle: ", i, "  distance_mm: ", temp_array[i]
 			#print "zero_distance:",zero_distance
-			return temp_array
-
-	def loop(self):
-		while True:
-			try:
-				self.publish(self.read_lidar())
-			except:
-				pass
-			time.sleep(0.0001) # dont hog processor
+			return self.distance_array
 
 
 if __name__== "__main__":
 	lidar = protox2d('A1')
 	while True:
-		#time.sleep(3)
-		data = lidar.read_lidar()
-		print data, len(data)
+		time.sleep(1)
+		#print lidar.distance_array
+		#print "ID:", lidar.id
+		#print "RPM:", lidar.rpm
 

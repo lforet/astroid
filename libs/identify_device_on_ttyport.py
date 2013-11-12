@@ -12,18 +12,18 @@ def find_usb_tty(vendor_id = None, product_id = None) :
     tty_devs    = []
     vendor_id = int(vendor_id, 16)
     product_id = int(product_id , 16)
-    print "vendor_id, product_id", vendor_id, product_id
+    #print "vendor_id, product_id", vendor_id, product_id
     for dn in glob.glob('/sys/bus/usb/devices/*') :
         try     :
             vid = int(open(os.path.join(dn, "idVendor" )).read().strip(), 16)
             pid = int(open(os.path.join(dn, "idProduct")).read().strip(), 16)
-            print vid, pid
+            #print vid, pid
 
             if  ((vendor_id is None) or (vid == vendor_id)) and ((product_id is None) or (pid == product_id)) :
                 dns = glob.glob(os.path.join(dn, os.path.basename(dn) + "*"))
                 for sdn in dns :
                     for fn in glob.glob(os.path.join(sdn, "*")) :
-                        print fn
+                        #print fn
                         if  re.search(r"\/ttyUSB[0-9]+$", fn) :
                             tty_devs.append(os.path.join("/dev", os.path.basename(fn)))
                         if  re.search(r"\video[0-9]+$", fn) :

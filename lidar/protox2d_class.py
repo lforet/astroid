@@ -17,13 +17,13 @@ EXAMPLE USAGE:
 """
 
 import serial
-#import threading
+import thread
 import time
 #import os
 from serial.tools import list_ports
 
 import sys
-sys.path.append( "../../libs/" )
+sys.path.append( "../libs/" )
 from identify_device_on_ttyport import *
 
 NUMBER_READINGS = 2
@@ -87,17 +87,18 @@ class protox2d():
 		self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 		self.channel = self.connection.channel()
 		#channel.queue_declare(queue='mobot_video1', auto_delete=True, arguments={'x-message-ttl':1000})
-		self.channel.exchange_declare(exchange='mobot_data_feed',type='topic')	
+		self.channel.exchange_declare(exchange='astroid_data_feed',type='topic')	
 	
 	def publish(self, data):
-			self.channel.basic_publish(exchange='mobot_data_feed', 
+			self.channel.basic_publish(exchange='astroid_data_feed', 
 								routing_key=self.feed_num, body=data)
 	
 	def run(self):
 		self.connect_to_lidar()
+		
 		#if self.ser != None:
 		#	self.connect()
-		#	self.th = thread.start_new_thread(self.read_lidar, ())
+		self.th = thread.start_new_thread(self.loop(), ())
 		
 
 	def read_lidar(self):
@@ -108,12 +109,12 @@ class protox2d():
 				temp_data = temp_data.strip('\r\n')
 				lidar_data = temp_data.split(',')
 				try:
-					#self.id = lidar_data[0]
-					#self.x_angle = int(lidar_data[1])
+					self.id = lidar_data[0]
+					self.x_angle = int(lidar_data[1])
 					self.y_angle = int(lidar_data[2])
 					self.distance_mm = int(lidar_data[3])
 					self.quality = int(lidar_data[4])
-					#self.rpm = int(lidar_data[5])
+					self.rpm = int(lidar_data[5])
 					if self.quality > 0:
 						temp_array[self.y_angle] = self.distance_mm 
 				except:
@@ -124,6 +125,15 @@ class protox2d():
 				#print "angle: ", i, "  distance_mm: ", temp_array[i]
 			#print "zero_distance:",zero_distance
 			return temp_array
+
+	def loop(self):
+		while True:
+			try:
+				self.publish(self.read_lidar())
+			except:
+				pass
+			time.sleep(0.0001) # dont hog processor
+
 
 if __name__== "__main__":
 	lidar = protox2d('A1')
