@@ -61,7 +61,7 @@ class protox2d():
 					print "protox2d: attempting connection to port:", port_to_try
 					try:				
 						#could actually get serial number from device from list_serial _ports and look specifically for that one
-						ser = serial.Serial(port_to_try, 115200)
+						ser = serial.Serial(port_to_try, self.baudrate)
 						if (ser.isOpen() == True):
 							print "Connected. Waiting 5 seconds for ProtoX2D to spin up."							
 							time.sleep(5)
@@ -110,10 +110,9 @@ class protox2d():
 				str(self.rpm) + ',\n\r' + '   ' +
 				quotes + 'points' + quotes + ': ' +
 				str(self.distance_array) + '\n\r' + '}\n\r')
-
-				print json_to_publish, type(json_to_publish)
+				#print json_to_publish, type(json_to_publish)
 				#self.publish(self.read_lidar())
-				#self.publish(json_to_publish)
+				self.publish(json_to_publish)
 
 	def reset_variables(self):
 		self.id = 0
@@ -142,11 +141,6 @@ class protox2d():
 						self.distance_array[self.y_angle] = self.distance_mm 
 				except:
 					pass
-			#zero_distance = 0
-			#for i in range(360):
-			#	if temp_array[i] == 0: zero_distance = zero_distance + 1
-				#print "angle: ", i, "  distance_mm: ", temp_array[i]
-			#print "zero_distance:",zero_distance
 			return self.distance_array
 
 
