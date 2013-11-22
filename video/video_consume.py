@@ -53,7 +53,7 @@ class consume_video():
 
 if __name__== "__main__":
 	cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
-	camera = consume_video('video.0', '192.168.1.190')
+	camera = consume_video('video.0', 'localhost')
 	print camera.frame
 	#sys.exit()
 	while True:

@@ -22,7 +22,7 @@ import time
 #import os
 from serial.tools import list_ports
 import json
-
+import pika
 import sys
 sys.path.append( "../libs/" )
 from identify_device_on_ttyport import *
@@ -100,7 +100,10 @@ class protox2d():
 		self.th = thread.start_new_thread(self.loop, ())
 
 	def loop(self):
+			print "protox2d: Connecting to RabbitMQ"
+			self.connect()
 			quotes = '"'
+			filename = open("lidar_data.txt", 'a')
 			while True:
 				self.read_lidar()
 				time.sleep(0.0001) # dont hog processor
@@ -111,8 +114,10 @@ class protox2d():
 				quotes + 'points' + quotes + ': ' +
 				str(self.distance_array) + '\n\r' + '}\n\r')
 				#print json_to_publish, type(json_to_publish)
-				#self.publish(self.read_lidar())
+				#self.publish('hi')
 				self.publish(json_to_publish)
+				filename.write(json_to_publish)
+				
 
 	def reset_variables(self):
 		self.id = 0
@@ -146,8 +151,12 @@ class protox2d():
 
 if __name__== "__main__":
 	lidar = protox2d('A1')
+	
 	while True:
 		time.sleep(1)
+		
+		
+		
 		#print lidar.distance_array
 		#print "ID:", lidar.id
 		#print "RPM:", lidar.rpm

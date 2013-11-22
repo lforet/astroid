@@ -15,7 +15,9 @@ while(1):
 
     # convert to hsv and find range of colors
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    thresh = cv2.inRange(hsv,np.array([70, 140, 140]), np.array([95, 185, 225]))
+    #thresh = cv2.inRange(hsv,np.array([70, 140, 140]), np.array([95, 185, 225])) #lime bottle
+    thresh = cv2.inRangeS(hsv,np.array([19, 250, 230]), np.array([30, 255, 255])) #lime bottle
+
     thresh2 = thresh.copy()
 
     # find contours in the threshold image
@@ -23,6 +25,7 @@ while(1):
 
     # finding contour with maximum area and store it as best_cnt
     max_area = 0
+    best_cnt = 1
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if area > max_area:

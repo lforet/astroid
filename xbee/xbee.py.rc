@@ -1,0 +1,7 @@
+# Preferences file for version 2.15
+ORIGIN = "http://www.dudek.org/blog/180"  #   # where to look for an updated version
+lastbaud = 9600#   # last baud rate successfully use or manually specificied
+firmware = "10EC"
+defaultPAN = "3332"
+next_version_check = 1387126038.75#   # when to check again
+VERSIONCHECKDAYS = 30#   # how often to check the version (days)

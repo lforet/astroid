@@ -1,0 +1,205 @@
+#!/usr/bin/env python
+import sys
+sys.path.append( "../libs/" )
+
+import pika
+from pylab import imread
+import time
+import cv, cv2
+import cPickle as pickle
+import gc
+import thread
+import base64
+import Image
+import numpy
+import json
+import md5
+import zlib
+import umsgpack
+from cStringIO import StringIO
+
+'''
+USAGE:
+import mobot_video_class
+camera1 = mobot_video_class.mobot_video(camera#, width, height)
+
+helps on ubunutu to not drop frames
+lsmod
+rmmod uvcvideo
+modprobe uvcvideo nodrop=1 timeout=5000 quirks=0x80
+'''
+
+class publish_video():
+	def __init__(self, camera_num, x, y):
+		self.camera_num = camera_num
+		self.x = x
+		self.y = y
+		self.camera = None
+		self.frame_count = 0
+		self.recovery_count = 0		
+		self.frame = None
+		self.capture_time = 0.0
+		#-------------connection variables
+		self.feed_num = 'video.' + str(camera_num )
+		self.connection = None
+		self.channel = None
+		#----------------------RUN
+		#self.th = thread.start_new_thread(self.run, ())
+		self.run()
+
+	def connect(self):
+		self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+		self.channel = self.connection.channel()
+		#self.channel.queue_declare(queue='mobot_video1', auto_delete=True, arguments={'x-message-ttl':1000})
+		self.channel.exchange_declare(exchange='astroid_data_feed',type='topic')
+
+	def publish(self, data):
+			self.channel.basic_publish(exchange='astroid_data_feed', routing_key=self.feed_num,  body=data, properties=pika.BasicProperties(expiration='100'))
+
+
+	def enable_local_display(self):
+		cv2.namedWindow('Front Camera', cv.CV_WINDOW_AUTOSIZE)
+		#webcam1 =  cv.CreateCameraCapture(1)
+		webcam1 = cv2.VideoCapture(1)
+		cv2.imshow('Front Camera', frame1)	
+		cv2.waitKey(30)
+
+
+	def initialize_camera(self, camera_num, x, y):
+			if camera_num <> "":
+				self.camera = cv2.VideoCapture(camera_num)
+				self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, x) 
+				self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, y) 
+				#self.camera1.set(cv2.cv.CV_CAP_PROP_FPS, 10)
+
+	def compress(self, uncompressed):
+		"""Compress a string to a list of output symbols."""
+	 
+		# Build the dictionary.
+		dict_size = 256
+		dictionary = dict((chr(i), chr(i)) for i in xrange(dict_size))
+		# in Python 3: dictionary = {chr(i): chr(i) for i in range(dict_size)}
+	 
+		w = ""
+		result = []
+		for c in uncompressed:
+		    wc = w + c
+		    if wc in dictionary:
+		        w = wc
+		    else:
+		        result.append(dictionary[w])
+		        # Add wc to the dictionary.
+		        dictionary[wc] = dict_size
+		        dict_size += 1
+		        w = c
+	 
+		# Output the code for w.
+		if w:
+		    result.append(dictionary[w])
+		return result
+	 
+	 
+	def decompress(self, compressed):
+		"""Decompress a list of output ks to a string."""
+	 
+		# Build the dictionary.
+		dict_size = 256
+		dictionary = dict((chr(i), chr(i)) for i in xrange(dict_size))
+		# in Python 3: dictionary = {chr(i): chr(i) for i in range(dict_size)}
+	 
+		w = result = compressed.pop(0)
+		for k in compressed:
+		    if k in dictionary:
+		        entry = dictionary[k]
+		    elif k == dict_size:
+		        entry = w + w[0]
+		    else:
+		        raise ValueError('Bad compressed k: %s' % k)
+		    result += entry
+	 
+		    # Add w+entry[0] to the dictionary.
+		    dictionary[dict_size] = w + entry[0]
+		    dict_size += 1
+	 
+		    w = entry
+		return result
+
+	def array2image(self, img):
+		#img=img/img.max()*255.0 #optional.
+		im=Image.Image()
+		im=Image.fromarray(numpy.uint8(img))
+		return im
+
+	def run(self):
+		self.connect()
+		print "video connected to RabbitMQ.."
+		self.initialize_camera(self.camera_num, self.x, self.y)
+		print "camera initialized..."
+		s = StringIO()
+
+		while True:
+			time.sleep(0.0001) #dont hog resources
+			self.frame = None
+			self.frame_count += 1
+			now = time.time()
+			try:
+				ret, self.frame = self.camera.read()
+			except:
+				pass
+			self.capture_time = (time.time()-now)
+			print 'pulishing on:' , self.feed_num, '  frames:', self.frame_count , "   capture time:", self.capture_time, "   recovery_count:", self.recovery_count 
+			if self.capture_time > 0.6 or self.frame == None:
+				self.frame = None
+				while self.frame == None:
+					print "in recovery"
+					self.recovery_count += 1
+					try:
+						if self.camera != None:
+							self.camera.release	
+						gc.enable()
+						gc.collect()			
+						self.initialize_camera(self.camera_num, self.x, self.y)
+						
+						try:
+							ret, self.frame = self.camera.read()
+						except:
+							pass
+					except:
+						time.sleep(.1)
+						pass
+			now = time.time()
+			#pickled_frame = pickle.dumps(self.frame,-1)
+			#print self.frame.shape, self.frame.size
+			#json_frame = json.dumps(self.frame.tolist(), numpy.uint8)
+			print self.frame.size, self.frame.shape
+			numpy.savetxt(s, self.frame, fmt='%d')
+			#umsg_frame = umsgpack.packb(self.frame.tolist())
+			print "completed encoding:", (time.time()-now)
+			#print json_frame
+			#print self.frame.size
+			#time.sleep(5)
+			#base64_frame = base64.b64encode( json_frame )
+			#print "len base64:", len(base64_frame)
+			#lzw_frame = self.compress(json_frame)
+			#print "len lzw:", len(lzw_frame)
+			#decoded_frame = base64.b64decode(base64_frame)
+			#print decoded_frame, len(decoded_frame)
+			#self.publish(pickled_frame)
+			#print "MD5:", md5.new(base64_frame).digest()
+			#print type(json_frame), len(json_frame)
+			#self.publish(base64_frame)
+			#self.publish(json_frame)
+			#self.publish(umsg_frame)
+	        #fp = StringIO()
+            #image = cam.getImage().flipHorizontal().getPIL()
+            #image.save(fp, 'JPEG')
+            #ws.send(fp.getvalue().encode("base64"))
+            #fp.close() << benchmark and memory tests needed
+            sleep(0.5)
+
+if __name__== "__main__":
+
+	lidar = publish_video(0, 640, 480)
+	while True:
+		time.sleep(0.01)
+
