@@ -16,11 +16,11 @@ class ColorTracker:
 		self.frame = None
 		self.capture_time = 0.0
 		self.scale_down = scale
-		self.sensitivity = 10 #higher is less sensitive i.e. objects most be closer to recognize at higher setting
+		self.sensitivity = 1000 #higher is less sensitive i.e. objects most be closer to recognize at higher setting
 		self.hsv = None
 		#pink ball lower_HSV: [130   3 248]  upper_HSV: [162  54 255]
 		self.hue_high = 165
-		self.hue_low = 130
+		self.hue_low = 135
 		self.sat_high = 55
 		self.sat_low = 3
 		self.val_high = 255
@@ -124,7 +124,6 @@ class ColorTracker:
 			#flip image to give correct prospective
 			#self.frame = cv2.flip(self.frame, 1)
 		
-
 			#scale
 			self.frame = cv2.resize(self.frame, (len(self.frame[0]) / self.scale_down, len(self.frame) / self.scale_down))
 			
@@ -155,13 +154,13 @@ class ColorTracker:
 
 			#thresh = cv2.GaussianBlur(thresh, (5,5), 0)
 
-			#dilation = np.ones((15, 15), "uint8")
-			#thresh  = cv2.dilate(thresh , dilation)
+			dilation = np.ones((12, 12), "uint8")
+			thresh  = cv2.dilate(thresh , dilation)
 
 			# find contours in the threshold image
-			#contours,hierarchy = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+			contours,hierarchy = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 
-			contours, hierarchy = cv2.findContours(thresh,cv.CV_RETR_TREE ,cv.CV_CHAIN_APPROX_NONE)
+			#contours, hierarchy = cv2.findContours(thresh,cv.CV_RETR_TREE ,cv.CV_CHAIN_APPROX_NONE)
 			max_area = 0
 			largest_contour = None
 			for idx, contour in enumerate(contours):
@@ -185,6 +184,7 @@ class ColorTracker:
 					#draw circle in center of mass
 					cx,cy = int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
 					cv2.circle(self.frame,(cx,cy),5,255,-1)
+					cv2.drawContours(self.frame,[largest_contour],0, (0,0,0),  thickness=3)
 					st = "Target X:" + str(cx) + ' Y:' + str(cy) + "   Area:" + str(moment["m00"])
 					print st
 					cv2.putText(self.frame, st ,(0,50), cv2.FONT_HERSHEY_PLAIN, 1.5, (0,255,0) )
@@ -198,7 +198,7 @@ class ColorTracker:
 						print "square"
 					if len(approx) >= 9 and len(approx) <= 11:
 						print "half-circle"
-					if len(approx) >= 12:
+					if len(approx) >= 9 and len(approx) <= 17:
 						print "circle"
 			cv2.imshow("ColorTrackerWindow", self.frame)
 			cv2.imshow("threshold", thresh)
@@ -210,7 +210,7 @@ class ColorTracker:
 
 if __name__ == "__main__":
 
-	color_tracker = ColorTracker("../../../Videos//20131125_103550.mp4",640,480, 2)
+	color_tracker = ColorTracker("20131125_103550.mp4",640,480, 2)
 	color_tracker.run()
 
 
