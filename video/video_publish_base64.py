@@ -130,6 +130,34 @@ class publish_video():
 		im=Image.fromarray(numpy.uint8(img))
 		return im
 
+	def grab_frame(self):
+		now = time.time()
+		current_frame = None
+		try:
+			ret, current_frame = self.camera.read()
+		except:
+			pass
+		self.capture_time = (time.time()-now)
+		if self.capture_time > 0.6 or current_frame== None:
+			current_frame = None
+			while current_frame == None:
+				print "camera fault: recovering..."
+				self.recovery_count += 1
+				try:
+					if self.camera != None:
+						self.camera.release	
+					gc.enable()
+					gc.collect()			
+					self.initialize_camera(self.camera_num, self.x, self.y)
+					try:
+						ret, current_frame = self.camera.read()
+					except:
+						pass
+				except:
+					time.sleep(.1)
+					pass		
+		self.frame = current_frame	
+
 	def run(self):
 		self.connect()
 		print "video connected to RabbitMQ.."
