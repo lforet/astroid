@@ -118,7 +118,7 @@ class ColorTracker:
 		self.initialize_camera()
 		cv.SetMouseCallback("ColorTrackerWindow",self.on_mouse);
 		while True:
-			time.sleep(0.0001)
+			time.sleep(0.001)
 			self.grab_frame()
 
 			#flip image to give correct prospective
@@ -129,7 +129,7 @@ class ColorTracker:
 			
             #blur the source image to reduce color noise 
    			#self.frame = cv2.blur(self.frame,(3,3))
-			#self.frame = cv2.GaussianBlur(self.frame, (5,5), 0)
+			self.frame = cv2.GaussianBlur(self.frame, (9,9), 0)
 
 			#split color channels		
 			#r,g,b = cv2.split(self.frame)
