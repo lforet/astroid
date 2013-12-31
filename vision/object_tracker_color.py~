@@ -16,7 +16,7 @@ class ColorTracker:
 		self.frame = None
 		self.capture_time = 0.0
 		self.scale_down = scale
-		self.sensitivity = 1000 #higher is less sensitive i.e. objects most be closer to recognize at higher setting
+		self.sensitivity = 300 #higher is less sensitive i.e. objects most be closer to recognize at higher setting
 		self.hsv = None
 		#pink ball lower_HSV: [130   3 248]  upper_HSV: [162  54 255]
 		self.hue_high = 165
@@ -77,11 +77,11 @@ class ColorTracker:
 				self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height) 
 				#self.camera1.set(cv2.cv.CV_CAP_PROP_FPS, 10)
 				#self.camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE, 10)
-				self.camera.set(cv2.cv.CV_CAP_PROP_CONTRAST,0.90)
-				self.camera.set(cv2.cv.CV_CAP_PROP_BRIGHTNESS,0.01)
+				self.camera.set(cv2.cv.CV_CAP_PROP_CONTRAST,0.70)
+				self.camera.set(cv2.cv.CV_CAP_PROP_BRIGHTNESS,0.1)
 				#self.camera.set(cv2.cv.CV_CAP_PROP_GAIN,0.1)
-				self.camera.set(cv2.cv.CV_CAP_PROP_HUE,0.1)
-				self.camera.set(cv2.cv.CV_CAP_PROP_SATURATION ,0.9)
+				self.camera.set(cv2.cv.CV_CAP_PROP_HUE,0.2)
+				self.camera.set(cv2.cv.CV_CAP_PROP_SATURATION ,0.8)
 				print "contrast:", self.camera.get(cv2.cv.CV_CAP_PROP_CONTRAST)
 				print "brightness:", self.camera.get(cv2.cv.CV_CAP_PROP_BRIGHTNESS)
 				print "gain:", self.camera.get(cv2.cv.CV_CAP_PROP_GAIN)
@@ -210,7 +210,8 @@ class ColorTracker:
 
 if __name__ == "__main__":
 
-	color_tracker = ColorTracker("20131125_103550.mp4",640,480, 2)
+	#color_tracker = ColorTracker("20131125_103550.mp4",640,480, 2)
+	color_tracker = ColorTracker(0,640,480,1)
 	color_tracker.run()
 
 

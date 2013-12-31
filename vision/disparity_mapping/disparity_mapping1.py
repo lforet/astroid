@@ -1,0 +1,182 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import  cv, cv2, math
+import numpy as np
+import time
+import gc
+
+
+
+ply_header = '''ply
+format ascii 1.0
+element vertex %(vert_num)d
+property float x
+property float y
+property float z
+property uchar red
+property uchar green
+property uchar blue
+end_header
+'''
+
+class DisparityMap:
+	def __init__(self, camera_num, width, height, scale):
+		self.camera_num = camera_num
+		self.width = width
+		self.height = height
+		self.right_cam = None
+		self.left_cam = None
+		self.frame_count = 0
+		self.recovery_count = 0		
+		self.right_frame = None
+		self.left_frame = None
+		self.capture_time = 0.0
+		cv2.namedWindow("RightCam")
+		cv2.namedWindow("LeftCam") # , cv2.CV_WINDOW_AUTOSIZE)
+		cv2.namedWindow("Disparity")
+		
+
+	def on_mouse(self, event,x,y,flag,param):
+		if (event==cv.CV_EVENT_LBUTTONDOWN): 
+			print x,y
+
+
+		if (event==cv.CV_EVENT_MBUTTONDOWN):
+			print "middle button"
+
+
+	def initialize_camera(self):
+			if self.camera_num <> "":
+			
+				self.right_cam = cv2.VideoCapture(self.camera_num)	
+				self.left_cam = cv2.VideoCapture(self.camera_num+1)
+				print self.right_cam, self.left_cam
+				self.right_cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.width) 
+				self.right_cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height) 
+				self.left_cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.width) 
+				self.left_cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height) 
+				#self.camera1.set(cv2.cv.CV_CAP_PROP_FPS, 10)
+				#self.camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE, 10)
+				self.right_cam.set(cv2.cv.CV_CAP_PROP_CONTRAST,0.5)
+				self.right_cam.set(cv2.cv.CV_CAP_PROP_BRIGHTNESS,0.5)
+				self.left_cam.set(cv2.cv.CV_CAP_PROP_CONTRAST,0.5)
+				self.left_cam.set(cv2.cv.CV_CAP_PROP_BRIGHTNESS,0.5)
+				#self.camera.set(cv2.cv.CV_CAP_PROP_GAIN,0.1)
+				#self.camera.set(cv2.cv.CV_CAP_PROP_HUE,0.1)
+				#self.camera.set(cv2.cv.CV_CAP_PROP_SATURATION ,0.9)
+				#print "contrast:", self.camera.get(cv2.cv.CV_CAP_PROP_CONTRAST)
+				#print "brightness:", self.camera.get(cv2.cv.CV_CAP_PROP_BRIGHTNESS)
+				#print "gain:", self.camera.get(cv2.cv.CV_CAP_PROP_GAIN)
+				#print "hue:", self.camera.get(cv2.cv.CV_CAP_PROP_HUE)
+				#print "satuation:", self.camera.get(cv2.cv.CV_CAP_PROP_SATURATION )
+				#time.sleep(4)
+
+	def grab_frame(self):
+		now = time.time()
+		right_local_frame = None
+		left_local_frame = None
+		try:
+			for i in range (6):
+				ret1, right_local_frame = self.right_cam.read()
+				#time.sleep(.5)
+				ret2, left_local_frame = self.left_cam.read()
+		except:
+			pass
+		self.capture_time = (time.time()-now)
+		
+		if self.capture_time > 2 or right_local_frame == None or left_local_frame == None:
+			#time.sleep(1)
+			print "camera fault: recovering...", self.recovery_count
+			self.recovery_count += 1
+			try:
+				if self.right_cam != None or self.left_cam != None:
+					self.right_cam.release
+					self.left_cam.release	
+				gc.enable()
+				gc.collect()			
+				self.initialize_camera()
+			except:
+				#time.sleep(.1)
+				pass
+			self.grab_frame()
+
+		else:
+			self.frame_count += 1		
+			self.right_frame = right_local_frame
+			self.left_frame = left_local_frame
+
+	def write_ply(self, fn, verts, colors):
+		verts = verts.reshape(-1, 3)
+		colors = colors.reshape(-1, 3)
+		verts = np.hstack([verts, colors])
+		with open(fn, 'w') as f:
+		    f.write(ply_header % dict(vert_num=len(verts)))
+		    np.savetxt(f, verts, '%f %f %f %d %d %d')
+
+	def run(self):
+		self.initialize_camera()
+		time.sleep(1)
+		cv.SetMouseCallback("RightCam",self.on_mouse);
+		while True:
+			#time.sleep(0.1)
+			self.grab_frame()
+
+			#flip image to give correct prospective
+			#self.frame = cv2.flip(self.frame, 1)
+		
+			#scale
+			#self.frame = cv2.resize(self.frame, (len(self.frame[0]) / self.scale_down, len(self.frame) / self.scale_down))
+			
+
+			# disparity range tuning
+			window_size = 1
+			min_disp = 16
+			num_disp = 112-min_disp
+			stereo = cv2.StereoSGBM(minDisparity = min_disp,
+				numDisparities = num_disp,
+				SADWindowSize = window_size,
+				uniquenessRatio = 10,
+				speckleWindowSize = 100,
+				speckleRange = 32,
+				disp12MaxDiff = 1,
+				P1 = 8*3*window_size**2,
+				P2 = 32*3*window_size**2,
+				fullDP = False
+			)
+
+			print 'computing disparity...'
+			disp = stereo.compute(self.left_frame, self.right_frame).astype(np.float32) / 16.0
+
+			print 'generating 3d point cloud...',
+			h, w = self.left_frame.shape[:2]
+			f = 0.8*w                          # guess for focal length
+			Q = np.float32([[1, 0, 0, -0.5*w],
+				            [0,-1, 0,  0.5*h], # turn points 180 deg around x-axis,
+				            [0, 0, 0,     -f], # so that y-axis looks up
+				            [0, 0, 1,      0]])
+			points = cv2.reprojectImageTo3D(disp, Q)
+			colors = cv2.cvtColor(self.left_frame, cv2.COLOR_BGR2RGB)
+			mask = disp > disp.min()
+			out_points = points[mask]
+			out_colors = colors[mask]
+			out_fn = 'out.ply'
+			self.write_ply('out.ply', out_points, out_colors)
+			print '%s saved' % 'out.ply'
+
+			disparity = stereo.compute(self.left_frame ,self.right_frame)
+			cv2.imshow("RightCam", self.right_frame)
+			cv2.imshow("LeftCam", self.left_frame)
+			cv2.imshow("Disparity",  (disp-min_disp)/num_disp)
+			# Clean up everything before leaving
+			if cv2.waitKey() == 27: # or cv2.waitKey() == 1048603:
+				self.right_cam.release()
+				self.left_cam.release()
+				cv2.destroyAllWindows()
+				break
+
+if __name__ == "__main__":
+
+	disp_map = DisparityMap(1,320,240,1)
+	disp_map.run()
+
+
