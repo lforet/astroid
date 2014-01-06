@@ -76,15 +76,16 @@ class DisparityMap:
 		right_local_frame = None
 		left_local_frame = None
 		try:
-			for i in range (1):
+			for i in range (4):
 				ret1, right_local_frame = self.right_cam.read()
-				#time.sleep(.5)
+			time.sleep(.10)
+			for i in range (4):
 				ret2, left_local_frame = self.left_cam.read()
 		except:
 			pass
 		self.capture_time = (time.time()-now)
-		
-		if self.capture_time > 2 or right_local_frame == None or left_local_frame == None:
+		print "capture time:", self.capture_time
+		if self.capture_time > 3 or right_local_frame == None or left_local_frame == None:
 			#time.sleep(1)
 			print "camera fault: recovering...", self.recovery_count
 			self.recovery_count += 1
@@ -104,6 +105,7 @@ class DisparityMap:
 			self.frame_count += 1		
 			self.right_frame = right_local_frame
 			self.left_frame = left_local_frame
+			print 'frame count:', self.frame_count
 
 	def write_ply(self, fn, verts, colors):
 		verts = verts.reshape(-1, 3)
@@ -146,7 +148,7 @@ class DisparityMap:
 
 			print 'computing disparity...'
 			disp = stereo.compute(self.left_frame, self.right_frame).astype(np.float32) / 16.0
-
+			
 			print 'generating 3d point cloud...',
 			h, w = self.left_frame.shape[:2]
 			f = 0.8*w                          # guess for focal length
@@ -162,13 +164,14 @@ class DisparityMap:
 			out_fn = 'out.ply'
 			self.write_ply('out.ply', out_points, out_colors)
 			print '%s saved' % 'out.ply'
+			
 
 			disparity = stereo.compute(self.left_frame ,self.right_frame)
 			cv2.imshow("RightCam", self.right_frame)
 			cv2.imshow("LeftCam", self.left_frame)
 			cv2.imshow("Disparity",  (disp-min_disp)/num_disp)
 			# Clean up everything before leaving
-			if cv2.waitKey() == 27: # or cv2.waitKey() == 1048603:
+			if cv2.waitKey(50) == 27: # or cv2.waitKey() == 1048603:
 				self.right_cam.release()
 				self.left_cam.release()
 				cv2.destroyAllWindows()
