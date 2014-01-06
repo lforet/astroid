@@ -76,7 +76,7 @@ class DisparityMap:
 		right_local_frame = None
 		left_local_frame = None
 		try:
-			for i in range (6):
+			for i in range (2):
 				ret1, right_local_frame = self.right_cam.read()
 				#time.sleep(.5)
 				ret2, left_local_frame = self.left_cam.read()
@@ -129,19 +129,19 @@ class DisparityMap:
 			
 
 			# disparity range tuning
-			window_size = 1
+			window_size = 5
 			min_disp = 16
-			num_disp = 112-min_disp
+			num_disp = 64 - min_disp
 			stereo = cv2.StereoSGBM(minDisparity = min_disp,
 				numDisparities = num_disp,
 				SADWindowSize = window_size,
-				uniquenessRatio = 10,
-				speckleWindowSize = 100,
+				uniquenessRatio = 15,
+				speckleWindowSize = 120,
 				speckleRange = 32,
 				disp12MaxDiff = 1,
 				P1 = 8*3*window_size**2,
 				P2 = 32*3*window_size**2,
-				fullDP = True
+				fullDP = False
 			)
 
 			print 'computing disparity...'
@@ -176,7 +176,7 @@ class DisparityMap:
 
 if __name__ == "__main__":
 
-	disp_map = DisparityMap(1,320,240,1)
+	disp_map = DisparityMap(0,320,240,1)
 	disp_map.run()
 
 
