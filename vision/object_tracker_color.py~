@@ -129,7 +129,7 @@ class ColorTracker:
 			
             #blur the source image to reduce color noise 
    			#self.frame = cv2.blur(self.frame,(3,3))
-			self.frame = cv2.GaussianBlur(self.frame, (9,9), 0)
+			#self.frame = cv2.GaussianBlur(self.frame, (9,9), 0)
 
 			#split color channels		
 			#r,g,b = cv2.split(self.frame)
@@ -202,11 +202,17 @@ class ColorTracker:
 						print "circle"
 			cv2.imshow("ColorTrackerWindow", self.frame)
 			cv2.imshow("threshold", thresh)
+
+
 			# Clean up everything before leaving
 			if cv2.waitKey(10) == 27 or cv2.waitKey(10) == 1048603:
 				cv2.destroyWindow("ColorTrackerWindow")
 				self.capture.release()
 				break
+
+			#print cx,cy
+
+
 
 if __name__ == "__main__":
 

@@ -59,14 +59,14 @@ writeHistogramsToFile(nclusters,
 
 print 'loading data file'
 data_file = loadtxt(HISTOGRAMS_FILE)
-print data_file, type(data_file)
+#print data_file, type(data_file)
 #classID = data_file[:,0].astype(int)
 classID = data_file[0].astype(int)
 #Features = np.delete(data_file, 0,1)
 
 features = data_file[1:]
 features = features.reshape(1, (features.shape[0]))
-print classID, features
+#print classID, features
 #sys.exit()
 
 print "---------------------"

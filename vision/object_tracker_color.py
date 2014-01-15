@@ -129,7 +129,7 @@ class ColorTracker:
 			
             #blur the source image to reduce color noise 
    			#self.frame = cv2.blur(self.frame,(3,3))
-			self.frame = cv2.GaussianBlur(self.frame, (9,9), 0)
+			#self.frame = cv2.GaussianBlur(self.frame, (9,9), 0)
 
 			#split color channels		
 			#r,g,b = cv2.split(self.frame)
@@ -154,7 +154,7 @@ class ColorTracker:
 
 			#thresh = cv2.GaussianBlur(thresh, (5,5), 0)
 
-			dilation = np.ones((14, 14), "uint8")
+			dilation = np.ones((12, 12), "uint8")
 			thresh  = cv2.dilate(thresh , dilation)
 
 			# find contours in the threshold image
@@ -184,6 +184,10 @@ class ColorTracker:
 					#draw circle in center of mass
 					cx,cy = int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
 					cv2.circle(self.frame,(cx,cy),5,255,-1)
+	
+					#send out center of mass coordinates and area size
+					print cx,cy, moment["m00"]
+				
 					cv2.drawContours(self.frame,[largest_contour],0, (0,0,0),  thickness=3)
 					st = "Target X:" + str(cx) + ' Y:' + str(cy) + "   Area:" + str(moment["m00"])
 					print st
@@ -202,11 +206,17 @@ class ColorTracker:
 						print "circle"
 			cv2.imshow("ColorTrackerWindow", self.frame)
 			cv2.imshow("threshold", thresh)
+
+
 			# Clean up everything before leaving
 			if cv2.waitKey(10) == 27 or cv2.waitKey(10) == 1048603:
 				cv2.destroyWindow("ColorTrackerWindow")
 				self.capture.release()
 				break
+
+			
+
+
 
 if __name__ == "__main__":
 

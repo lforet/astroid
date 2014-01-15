@@ -59,7 +59,7 @@ writeHistogramsToFile(nclusters,
 
 print 'loading data file'
 data_file = loadtxt(HISTOGRAMS_FILE)
-print data_file, type(data_file)
+#print data_file, type(data_file)
 #classID = data_file[:,0].astype(int)
 classID = data_file[0].astype(int)
 #Features = np.delete(data_file, 0,1)
@@ -92,7 +92,7 @@ LinearSVC_clf = LinearSVC()
 LinearSVC_clf = pickle.load( open(MODEL_FILE, "rb" ) )
 LinearSVC_class = LinearSVC_clf.predict(features)
 print "LinearSVC_clf predicted classID:", LinearSVC_class
-print "LinearSVC predicted prob:", LinearSVC_clf.predict_proba(features)
+#print "LinearSVC predicted prob:", LinearSVC_clf.predict_proba(features)
 
 from sklearn.linear_model import LogisticRegression
 clf2 = pickle.load(open(MODEL_FILE_LR, "rb" ) )
