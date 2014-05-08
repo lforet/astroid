@@ -68,8 +68,12 @@ class consume_wifi():
 	
 
 if __name__== "__main__":
+	IP = 'localhost'
+	if len(sys.argv) > 1:
+		#if sys.argv[1] == 'testmode':
+		IP = str(sys.argv[1])
 
-	wifi = consume_wifi('wifi.1', 'localhost')
+	wifi = consume_wifi('wifi.1', IP)
 	while True:
 		time.sleep(1)
 		print 'signal strength:', wifi.signal_strength
