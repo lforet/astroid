@@ -42,6 +42,7 @@ class wifi_graph():
 			return float (int(((float(val) - floor) / ceiling) * 100)) / 100
 
 	def calculate_color2(self, val):
+		if val > 99: val = 99
 		temp = int(self.translate(val, 0, 80, 0, 4))
 		color = []
 		n = 5
@@ -97,7 +98,7 @@ class wifi_graph():
 			try:
 				val = int(self.wifi_to_graph.signal_strength)		
 				if val < 0: val = 0
-				print val
+				#print val
 			except:
 				val = 0
 				#val = random.randint(0,100)
@@ -105,13 +106,13 @@ class wifi_graph():
 			y.append(val)
 		
 			plt.cla()
-			plt.xticks(xrange(0,100,10))#, endpoint=True))
-			plt.yticks(xrange(0,100,10))#, endpoint=True))
+			plt.xticks(xrange(0,110,10))#, endpoint=True))
+			plt.yticks(xrange(0,110,10))#, endpoint=True))
 			plt.xlabel('10 seconds')
 			plt.ylabel('Strength')
 			plt.grid(True)
-			plt.ylim([0,100])
-			plt.xlim([0,100])
+			plt.ylim([0,110])
+			plt.xlim([0,110])
 			plt.grid(True)
 			#from mpl_toolkits.axes_grid1 import make_axes_locatable
 			#divider = make_axes_locatable(plt.gca())
@@ -119,16 +120,12 @@ class wifi_graph():
 			#cbar = plt.colorbar(fig, orientation='vertical')
 			#plt.tight_layout()
 			colors = []
-			#print y
+			
 			for i in range(len(x)):
 				#colors.append(calculate_color(y[i]))
 				colors.append(self.calculate_color2(y[i]))
 			#print val , colors[99]
-			 
-			try:
-				plt.bar(x , y, 1, color=colors)
-			except:
-				pass
+			plt.bar(x , y, 1, color=colors)
 			self.fig.canvas.draw()
 	
 	def graph(self):
@@ -141,7 +138,12 @@ class wifi_graph():
 		self.th = thread.start_new_thread(self.graph, ())
 
 if __name__ == "__main__":
-	wifi = consume_wifi('wifi.1', 'localhost')
+	IP = 'localhost'
+	if len(sys.argv) > 1:
+		#if sys.argv[1] == 'testmode':
+		IP = str(sys.argv[1])
+
+	wifi = consume_wifi('wifi.1', IP)
 	graph_wifi  = wifi_graph(wifi)
 	i = 0
 	while True:
