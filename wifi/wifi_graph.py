@@ -97,7 +97,7 @@ class wifi_graph():
 			try:
 				val = int(self.wifi_to_graph.signal_strength)		
 				if val < 0: val = 0
-				#print val
+				print val
 			except:
 				val = 0
 				#val = random.randint(0,100)
@@ -125,7 +125,10 @@ class wifi_graph():
 				colors.append(self.calculate_color2(y[i]))
 			#print val , colors[99]
 			 
-			plt.bar(x , y, 1, color=colors)
+			try:
+				plt.bar(x , y, 1, color=colors)
+			except:
+				pass
 			self.fig.canvas.draw()
 	
 	def graph(self):
@@ -138,10 +141,10 @@ class wifi_graph():
 		self.th = thread.start_new_thread(self.graph, ())
 
 if __name__ == "__main__":
-	wifi = consume_wifi('wifi.1', '192.168.1.190')
+	wifi = consume_wifi('wifi.1', 'localhost')
 	graph_wifi  = wifi_graph(wifi)
 	i = 0
 	while True:
 		time.sleep(1)
-		print 'wlist.strength, i'
-		#i += 1
+		print 'signal strength:', wifi.signal_strength, i
+		i += 1
