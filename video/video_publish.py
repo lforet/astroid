@@ -118,7 +118,8 @@ class publish_video():
 
 if __name__== "__main__":
 
-	lidar = publish_video(0, 640, 480)
+	#lidar = publish_video(0, 640, 480)
+	lidar = publish_video(0, 320, 240)	
 	while True:
 		time.sleep(1)
 

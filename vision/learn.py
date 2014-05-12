@@ -83,8 +83,14 @@ def extractSift(input_files):
         print "gathering sift features for", fname,
         #locs, descriptors = sift.read_features_from_file(features_fname)
         #kp, descriptors = sift.detectAndCompute(gray, None)
-        kp, descriptors = surf.detectAndCompute(gray, None)
-        #print descriptors.shape
+        #kp, descriptors = surf.detectAndCompute(gray, None)
+
+        surfDetector = cv2.FeatureDetector_create("SURF")
+        surfDescriptorExtractor = cv2.DescriptorExtractor_create("SURF")
+	keypoints = surfDetector.detect(im)
+	(keypoints, descriptors) = surfDescriptorExtractor.compute(gray, keypoints)
+        
+	#print descriptors.shape
         all_features_dict[fname] = descriptors
     return all_features_dict
 

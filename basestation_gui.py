@@ -7,6 +7,7 @@ sys.path.append( "video/" )
 sys.path.append( "wifi/" )
 
 import cv, cv2
+from PIL import Image
 from threading import *
 import easygui as eg
 from video_consume import *
@@ -18,7 +19,7 @@ from matplotlib import mpl
 from wifi_graph import *
 from img_processing_tools import *
 
-ROBOT_IP = '192.168.1.190'
+ROBOT_IP = 'localhost'
 Camera1 = None
 #Cam1 = None
 
@@ -72,7 +73,7 @@ if __name__== "__main__":
 	
 	cv2.namedWindow('Video', cv.CV_WINDOW_AUTOSIZE)
 	
-	wifi = consume_wifi('wifi.1', '192.168.1.190')
+	#wifi = consume_wifi('wifi.1', '192.168.1.190')
 	graph_wifi  = wifi_graph(wifi)
 	
 	#time.sleep(2) # given windows time to open and release handle
