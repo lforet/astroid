@@ -1,9 +1,9 @@
 '''
 Properties of cv2.KeyPoint:
 
-pt – coordinates of the keypoint
-size – diameter of the meaningful keypoint neighborhood
-angle – computed orientation of the keypoint. range [0,360) degrees.
+pt - coordinates of the keypoint
+size - diameter of the meaningful keypoint neighborhood
+angle - computed orientation of the keypoint. range [0,360) degrees.
 response - the response by which the most strong keypoints have been selected. Can be used for further sorting or subsampling
 octave - octave (pyramid layer) from which the keypoint has been extracted
 '''

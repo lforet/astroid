@@ -12,7 +12,6 @@ sudo apt-get install python-tk
 sudo apt-get install python-imaging-tk
 sudo apt-get install python-matplotlib
 sudo apt-get install python-pip
-sudo apt-get install python-opencv
 sudo apt-get install python-easygui
 sudo pip install -U cython
 sudo pip install -I pillow
