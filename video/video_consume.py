@@ -64,9 +64,11 @@ if __name__== "__main__":
 			print "receiving video feed: size, frame#: ", len(camera.frame), frame_num
 			cv2.imshow('Video', camera.frame)
 			cv.WaitKey(10)
+			camera.frame = None
+			
 		except:
 			print "no video feed"
-			time.sleep(.5)
+			time.sleep(.05)
 			pass
 
 

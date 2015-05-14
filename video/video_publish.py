@@ -7,6 +7,8 @@ import cv, cv2
 import cPickle as pickle
 import gc
 import thread
+import logging
+logging.basicConfig()
 
 '''
 USAGE:
@@ -64,9 +66,14 @@ class publish_video():
 	'''
 
 	def publish(self, data):
-			self.channel.basic_publish(exchange='astroid_data_feed', 
-								routing_key=self.feed_num, body=data)
-
+			try:
+				self.channel.basic_publish(exchange='astroid_data_feed',routing_key=self.feed_num, body=data)
+			except:
+				self.recovery_count += 1
+				print "failure recovering...error#:", self.recovery_count
+				self.connect()
+				pass
+				
 	def enable_local_display(self):
 		cv2.namedWindow('Front Camera', cv.CV_WINDOW_AUTOSIZE)
 		#webcam1 =  cv.CreateCameraCapture(1)
@@ -111,15 +118,14 @@ class publish_video():
 						except:
 							pass
 					except:
-						time.sleep(.5)
+						time.sleep(.1)
 						pass
 			pickled_frame = pickle.dumps(self.frame,-1)
 			self.publish(pickled_frame)
 
 if __name__== "__main__":
 
-	#lidar = publish_video(0, 640, 480)
-	lidar = publish_video(0, 320, 240)	
+	video_ouput = publish_video(0, 320, 240)	
 	while True:
 		time.sleep(1)
 
