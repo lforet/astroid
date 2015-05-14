@@ -56,10 +56,12 @@ if __name__== "__main__":
 	camera = consume_video('video.0', 'localhost')
 	print camera.frame
 	#sys.exit()
+	frame_num = 0
 	while True:
 		#time.sleep(0.1)
 		try:
-			print "receiving video feed data: ", len(camera.frame)
+			frame_num += 1
+			print "receiving video feed: size, frame#: ", len(camera.frame), frame_num
 			cv2.imshow('Video', camera.frame)
 			cv.WaitKey(10)
 		except:
