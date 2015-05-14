@@ -67,7 +67,8 @@ class publish_video():
 
 	def publish(self, data):
 			try:
-				self.channel.basic_publish(exchange='astroid_data_feed',routing_key=self.feed_num, body=data)
+				if self.connection.is_open == True:
+					self.channel.basic_publish(exchange='astroid_data_feed',routing_key=self.feed_num, body=data,properties=pika.BasicProperties(expiration=str(100)))
 			except:
 				self.recovery_count += 1
 				print "failure recovering...error#:", self.recovery_count
