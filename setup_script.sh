@@ -19,3 +19,7 @@ sudo pip install -I pillow
 sudo pip install -U mahotas
 sudo pip install -U six
 sudo pip install -U scikit-image
+cd pyusb/
+sudo python setup.py install
+cd ..
+
